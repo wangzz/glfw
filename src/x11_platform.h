@@ -116,6 +116,11 @@ typedef int (* PFN_XISelectEvents)(Display*,Window,XIEventMask*,int);
 #define XIQueryVersion _glfw.x11.xi.QueryVersion
 #define XISelectEvents _glfw.x11.xi.SelectEvents
 
+typedef Bool (* PFN_XScreenSaverQueryExtension)(Display*,int*,int*);
+typedef void (* PFN_XScreenSaverSuspend)(Display*,Bool);
+#define XScreenSaverQueryExtension _glfw.x11.xss.QueryExtension
+#define XScreenSaverSuspend _glfw.x11.xss.Suspend
+
 typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
 typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
 
@@ -225,6 +230,7 @@ typedef struct _GLFWlibraryX11
     double          restoreCursorPosX, restoreCursorPosY;
     // The window whose disabled cursor mode is active
     _GLFWwindow*    disabledCursorWindow;
+    int             acquiredMonitorCount;
 
     // Window manager atoms
     Atom            WM_PROTOCOLS;
@@ -315,14 +321,6 @@ typedef struct _GLFWlibraryX11
     } xkb;
 
     struct {
-        int         count;
-        int         timeout;
-        int         interval;
-        int         blanking;
-        int         exposure;
-    } saver;
-
-    struct {
         int         version;
         Window      source;
         Atom        format;
@@ -344,6 +342,15 @@ typedef struct _GLFWlibraryX11
         PFN_XineramaQueryExtension QueryExtension;
         PFN_XineramaQueryScreens QueryScreens;
     } xinerama;
+
+    struct {
+        GLFWbool    available;
+        void*       handle;
+        int         eventBase;
+        int         errorBase;
+        PFN_XScreenSaverQueryExtension QueryExtension;
+        PFN_XScreenSaverSuspend Suspend;
+    } xss;
 
     struct {
         void*       handle;
